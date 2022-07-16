@@ -1,26 +1,15 @@
 trigger crCon on Contact (before update) {
 
-    for (Contact con:Trigger.new)
-{
-Contact tempcon=Trigger.OldMap.get(con.Id);//Storing older version into opportunity.
-String oldemail=tempcon.email;
-if(con.email!=oldemail)
-{
-//    EmailTemplate emailTemplate = [select Id, Body from EmailTemplate where DeveloperName = 'Update_Service_Request'];
-Messaging.SingleEmailMessage message = new Messaging.SingleEmailMessage();
+    for (Contact con:Trigger.new){
+        Contact oldContact=Trigger.OldMap.get(con.Id);//Storing older version into opportunity.
+        String oldEmail=oldContact.Email;
         
-        message.toAddresses = new String[]{con.email};
-            message.plainTextBody = 'your new email is '+ con.email;
-        
-        Messaging.SingleEmailMessage[] messages = new List<Messaging.SingleEmailMessage>{message};
-            
-            Messaging.sendEmail(messages);
+        if(con.email!=oldEmail){
+           Boolean result = Email.send(con.email, 'Trigger test: your email has been changed to '+con.email);
+           if (!result){
+                con.addError('Email not sent');
+           }
+        }
 
+    }
 }
-
-
-
-    
-    
-
-}}
